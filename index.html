@@ -104,7 +104,7 @@
                     <option value="G12C">G12C</option><option value="G12D">G12D</option>
                 </select>
                 <input type="text" id="player-name" placeholder="輸入你的姓名..." class="input-style">
-                <button id="sync-btn" class="btn" style="background:var(--accent); width:auto; padding:8px 25px; margin-top:8px; font-size:1rem;" onclick="saveScore()">提交紀錄並同步</button>
+                <button id="sync-btn" class="btn" style="background:var(--accent); width:auto; padding:8px 25px; margin-top:8px; font-size:1rem;">提交紀錄並同步</button>
             </div>
             <button id="restart-btn" class="btn" style="background:var(--success); width:auto; padding:10px 30px; margin-top:10px; font-size:1rem; display:none;" onclick="location.reload()">再戰一次</button>
         </div>
@@ -121,12 +121,12 @@
              <b>🏆 關卡：</b>挑戰共 20 關，每關隨機抽取 5 個歷史事件。<br>
              <b>💡 幫助：</b>提交後，<b>正確的項目會自動鎖定</b>，助你推理。<br>
              <b>🏆 得分：</b>每關 40 分。排錯一次扣 10 分。<br>
-              <b>⚡ King Sir送贈的極速獎勵(只有首發全對才有啊)：</b><br>
+             <b>⚡ King Sir送贈的極速獎勵(只有首發全對才有啊)：</b><br>
             • 10 秒內完成：<b>+30 分</b><br>
             • 15 秒內完成：<b>+15 分</b><br>
             • 25 秒內完成：<b>+5 分</b><br>
         </div>
-        <button class="btn btn-start" onclick="startGame()">開始挑戰</button>
+        <button class="btn btn-start" id="btn-start">開始挑戰</button>
     </div>
 
     <div id="game-screen">
@@ -141,11 +141,13 @@
         <ul id="sortable-list"></ul>
         <div id="feedback"></div>
         <button id="submit-btn" class="btn">提交排序</button>
-        <button id="next-btn" class="btn" onclick="clearAutoNext(); nextLevel();">下一關 <span id="auto-timer"></span></button>
+        <button id="next-btn" class="btn">下一關 <span id="auto-timer"></span></button>
     </div>
 </div>
 
 <script>
+(function() { // 👈 IIFE 閉包保護開始
+
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwm2WYIGa0AxO-DtjduN7YS3f94Z3h2cRySJQlGSj8rLxokciKLqPfUGsx7njEq8M84yA/exec"; 
 
 const masterDatabase = [
@@ -298,19 +300,19 @@ const masterDatabase = [
     {text: "王仙芝之亂", year: 875, answerInfo: "875年 (唐僖宗乾符二年)"},
     {text: "黃巢之亂", year: 878, answerInfo: "878年 (唐僖宗乾符五年)"},
     {text: "廣州阿拉伯商人被屠殺", year: 879, answerInfo: "879年 (唐僖宗乾符六年)"},
-    {text: "朱溫盡殺宦官", year: 903, answerInfo: "903年 (唐昭宗天復三年)"},
+    {text: "朱溫盡殺宦官", year: 903, answerInfo: "903年 (唐昭宗天複三年)"},
     {text: "朱溫篡位", year: 907, answerInfo: "907年 (唐哀帝天祐四年)"},
     {text: "陳橋兵變", year: 960, answerInfo: "960年 (後周恭帝顯德七年)"}, 
-    {text: "杯酒釋兵權", year: 961, answerInfo: "961年 (宋太祖建隆二年)"},
-    {text: "北宋統一", year: 979, answerInfo: "979年 (宋太宗太平建國四年)"},
-    {text: "關陝之變", year: 1316, answerInfo: "1316年 (元仁宗延祐三年)"},
+    {text: "杯酒釋兵權", year: 961, answerInfo: "961年 (宋太祖建隆二年)"}, 
+    {text: "北宋統一", year: 979, answerInfo: "979年 (宋太宗太平建國四年)"}, 
+    {text: "關陝之變", year: 1316, answerInfo: "1316年 (元仁宗延祐三年)"}, 
     {text: "太祖重行封建", year: 1369, answerInfo: "1369年 (明太祖洪武二年)"}, 
     {text: "空印案", year: 1376, answerInfo: "1376年 (明太祖洪武九年)"}, 
-    {text: "胡惟庸案", year: 1380, answerInfo: "1380年 (明太祖洪武十三年)"},
+    {text: "胡惟庸案", year: 1380, answerInfo: "1380年 (明太祖洪武十三年)"}, 
     {text: "太祖廢相", year: 1380, answerInfo: "1380年 (明太祖洪武十三年)"}, 
     {text: "錦衣衛", year: 1382, answerInfo: "1382年 (明太祖洪武十五年)"}, 
     {text: "郭桓貪污案", year: 1385, answerInfo: "1385年 (明太祖洪武十八年)"}, 
-    {text: "藍玉案", year: 1393, answerInfo: "1393年 (明太祖洪武二十六年)"},
+    {text: "藍玉案", year: 1393, answerInfo: "1393年 (明太祖洪武二十六年)"}, 
     {text: "惠帝削藩", year: 1398, answerInfo: "1398年 (明太祖洪武三十一年)"}, 
     {text: "靖難之變", year: 1399, answerInfo: "1399年 (明惠帝建文元年)"}, 
     {text: "誅十族", year: 1402, answerInfo: "1402年 (明惠帝建文四年)"}, 
@@ -322,32 +324,34 @@ const masterDatabase = [
     {text: "明朝滅亡", year: 1644, answerInfo: "1644年 (明思宗崇禎十七年)"}, 
     {text: "吳三桂引清兵入關", year: 1644, answerInfo: "1644年 (明思宗崇禎十七年)"}, 
     {text: "薙髮令", year: 1645, answerInfo: "1645年 (清順治二年)"}, 
-    {text: "南明滅亡", year: 1662, answerInfo: "1662年 (清康熙元年)"},
+    {text: "南明滅亡", year: 1662, answerInfo: "1662年 (清康熙元年)"}, 
     {text: "遷界", year: 1664, answerInfo: "1664年 (清康熙三年)"}, 
     {text: "三藩之亂", year: 1673, answerInfo: "1673年 (清康熙十二年)"}, 
     {text: "南書房", year: 1677, answerInfo: "1677年 (清康熙十六年)"}, 
     {text: "台灣鄭氏敗亡", year: 1683, answerInfo: "1683年 (清康熙二十二年)"}, 
-    {text: "永不加賦", year: 1712, answerInfo: "1712年 (清康熙五十一年)"},
-    {text: "秘密選儲", year: 1723, answerInfo: "1723年 (清雍正元年)"},
+    {text: "永不加賦", year: 1712, answerInfo: "1712年 (清康熙五十一年)"}, 
+    {text: "秘密選儲", year: 1723, answerInfo: "1723年 (清雍正元年)"}, 
     {text: "攤丁入畝", year: 1724, answerInfo: "1724年 (清雍正二年)"}, 
-    {text: "軍機處", year: 1732, answerInfo: "1732年 (清雍正十年)"},
-    {text: "收復新疆", year: 1759, answerInfo: "1759年 (清乾隆二十四年)"},
-    {text: "《四庫全書》", year: 1782, answerInfo: "1782年 (清乾隆四十七年)"},
+    {text: "軍機處", year: 1732, answerInfo: "1732年 (清雍正十年)"}, 
+    {text: "收復新疆", year: 1759, answerInfo: "1759年 (清乾隆二十四年)"}, 
+    {text: "《四庫全書》", year: 1782, answerInfo: "1782年 (清乾隆四十七年)"}
 ];
 
-// --- 音效系統 ---
+// --- 音效系統 (Web Audio API) ---
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 function playBeep(freq, duration, type = "sine") {
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = type;
-    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.start();
-    osc.stop(audioCtx.currentTime + duration);
+    try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    } catch(e) {}
 }
 
 const sounds = {
@@ -362,10 +366,10 @@ const sounds = {
 };
 
 let score = 0, level = 1, startTime, timerRunning = false, correctOrder = [], currentLevelBase = 40, autoNextInterval;
-let isFirstAttempt = true; // 追蹤是否首發全對
+let isFirstAttempt = true; 
 
 function startGame() {
-    audioCtx.resume();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
     sounds.click();
     document.getElementById('start-screen').style.display = 'none';
     document.getElementById('game-screen').style.display = 'flex';
@@ -443,7 +447,6 @@ document.getElementById('submit-btn').addEventListener('click', () => {
         let bonus = 0;
         const timeUsed = (Date.now() - startTime) / 1000;
 
-        // 極速獎勵計算 (僅限首發全對)
         if (isFirstAttempt) {
             if (timeUsed <= 10) bonus = 30;
             else if (timeUsed <= 15) bonus = 15;
@@ -472,7 +475,7 @@ document.getElementById('submit-btn').addEventListener('click', () => {
             if (timeLeft <= 0) { clearAutoNext(); nextLevel(); }
         }, 1000);
     } else {
-        isFirstAttempt = false; // 一旦錯過就沒有獎勵分了
+        isFirstAttempt = false; 
         sounds.wrong();
         currentLevelBase = Math.max(0, currentLevelBase - 10);
         document.getElementById('feedback').innerHTML = `<span style="color:var(--danger)">❌ 部分順序有誤，已鎖定正確項目！</span>`;
@@ -503,6 +506,9 @@ function finishGame() {
     document.getElementById('rank-text').innerText = rank;
     document.querySelectorAll('.rank-row').forEach(el => el.classList.remove('current-rank'));
     document.getElementById(activeId).classList.add('current-rank');
+
+    if(localStorage.getItem('saved_class')) document.getElementById('player-class').value = localStorage.getItem('saved_class');
+    if(localStorage.getItem('saved_name')) document.getElementById('player-name').value = localStorage.getItem('saved_name');
 }
 
 function animateScore(s, e, d) {
@@ -522,12 +528,21 @@ function saveScore() {
     const classVal = document.getElementById('player-class').value;
     const nameVal = document.getElementById('player-name').value.trim();
     if (!classVal || !nameVal) return alert("請完整填寫班別與姓名！");
+    localStorage.setItem('saved_class', classVal);
+    localStorage.setItem('saved_name', nameVal);
     const btn = document.getElementById('sync-btn');
     btn.innerText = "同步中..."; btn.disabled = true;
     fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ className: classVal, name: nameVal, score: score }) })
     .then(() => { alert("紀錄已成功同步！"); document.getElementById('name-input-group').style.display = 'none'; document.getElementById('restart-btn').style.display = 'inline-block'; })
     .catch(() => { alert("同步失敗！"); btn.innerText = "提交紀錄並同步"; btn.disabled = false; });
 }
+
+// 綁定內部事件監聽器（確保閉包保護有效）
+document.getElementById('btn-start').addEventListener('click', startGame);
+document.getElementById('next-btn').addEventListener('click', () => { clearAutoNext(); nextLevel(); });
+document.getElementById('sync-btn').addEventListener('click', saveScore);
+
+})(); // 👈 IIFE 閉包保護結束
 </script>
 </body>
 </html>
